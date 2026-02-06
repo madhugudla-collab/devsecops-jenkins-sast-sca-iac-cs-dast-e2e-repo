@@ -42,9 +42,14 @@ pipeline {
       }
     }
     stage('RunDASTUsingZAP') {
-      steps {
-        bat("C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\Output.html")
-      }
+    //  steps {
+    //    bat("C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\Output.html")
+     // }
+steps {
+        // Switch execution to the directory where ZAP is installed
+        dir("C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0") {
+            bat "zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout Output.html"
+        }
     }
 
     stage('checkov') {
