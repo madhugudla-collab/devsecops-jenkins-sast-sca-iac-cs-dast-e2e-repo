@@ -65,20 +65,20 @@ pipeline {
   post {
     success {
       script {
-        bat """
+        bat '''
           curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
           -H "Content-Type: application/json" ^
-          -d "{\"name\":\"%JOB_NAME%\",\"build\":{\"full_url\":\"%BUILD_URL%\",\"log\":\"Build succeeded\"}}"
-        """
+          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build succeeded\\\"}}"
+        '''
       }
     }
     failure {
       script {
-        bat """
+        bat '''
           curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
           -H "Content-Type: application/json" ^
-          -d "{\"name\":\"%JOB_NAME%\",\"build\":{\"full_url\":\"%BUILD_URL%\",\"log\":\"Build failed\"}}"
-        """
+          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build failed\\\"}}"
+        '''
       }
     }
   }
