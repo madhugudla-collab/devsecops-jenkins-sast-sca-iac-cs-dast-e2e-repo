@@ -130,7 +130,41 @@ public class MailHeaderInjectionServlet extends AbstractServlet {
                         continue;
                     }
 
-                    File saveFile = new File(fileName);
+                    // Sanitize and validate file name to prevent path traversal and enforce allowed extensions
+                    File uploadBaseDir = new File(System.getProperty("java.io.tmpdir"), "uploads");
+                    if (!uploadBaseDir.exists() && !uploadBaseDir.mkdirs()) {
+                        log.error("Failed to create upload directory: " + uploadBaseDir.getAbsolutePath());
+                        continue;
+                    }
+                    String baseName = new File(fileName).getName();
+                    if (StringUtils.isBlank(baseName) || baseName.contains("..") || baseName.contains("/") || baseName.contains("\\")) {
+                        log.error("Invalid file name detected: " + fileName);
+                        continue;
+                    }
+                    String ext = "";
+                    int dotIdx = baseName.lastIndexOf('.');
+                    if (dotIdx >= 0) {
+                        ext = baseName.substring(dotIdx + 1).toLowerCase(Locale.ROOT);
+                    }
+                    String[] allowed = {"txt","pdf","png","jpg","jpeg","gif","csv"};
+                    boolean allowedExt = false;
+                    for (String a : allowed) {
+                        if (a.equals(ext)) {
+                            allowedExt = true;
+                            break;
+                        }
+                    }
+                    if (!allowedExt) {
+                        log.error("Disallowed file extension for upload: " + baseName);
+                        continue;
+                    }
+                    File saveFile = new File(uploadBaseDir, baseName);
+                    File canonicalBase = uploadBaseDir.getCanonicalFile();
+                    File canonicalDest = saveFile.getCanonicalFile();
+                    if (!canonicalDest.getPath().startsWith(canonicalBase.getPath() + File.separator)) {
+                        log.error("Path traversal attempt detected for file: " + fileName);
+                        continue;
+                    }
                     log.debug("Uploaded file is saved on: " + saveFile.getAbsolutePath());
                     FileOutputStream outputStream = null;
                     InputStream inputStream = null;
