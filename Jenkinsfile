@@ -5,10 +5,15 @@ pipeline {
   }
 
   stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
     stage('CompileandRunSonarAnalysis') {
       steps {
         withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-          bat("mvn -Dmaven.test.failure.ignore verify sonar:sonar -Dsonar.login=%SONAR_TOKEN% -Dsonar.projectKey=easybuggy -Dsonar.host.url=http://localhost:9001/")
+          bat("mvn -e -Dmaven.test.failure.ignore verify sonar:sonar -Dsonar.login=%SONAR_TOKEN%  -Dsonar.projectKey=easybuggy -Dsonar.host.url=http://localhost:9001/")
         }
       }
     }
@@ -56,5 +61,18 @@ pipeline {
       }
     }
 
+  }
+
+  post {
+    success {
+      script {
+        bat '''
+          curl -X POST "http://127.0.0.1:8000/" ^
+            -H "Content-Type: multipart/form-data" ^
+            -F "sonar_report=@target/sonar/report-task.txt" ^
+            -F "zap_report=@C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\Output.html"
+        '''
+      }
+    }
   }
 }
