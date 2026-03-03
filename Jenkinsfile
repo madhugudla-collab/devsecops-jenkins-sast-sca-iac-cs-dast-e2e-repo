@@ -48,9 +48,8 @@ pipeline {
     }
     stage('RunDASTUsingZAP') {
 	steps {
-        // Switch execution to the directory where ZAP is installed
         dir("C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0") {
-            bat "zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout Output.html"
+            bat "zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout %WORKSPACE%\\Output.html"
         }
     }
 }
@@ -66,12 +65,20 @@ pipeline {
   post {
     success {
       script {
-        bat '''
-          curl -X POST "http://127.0.0.1:8000/" ^
-            -H "Content-Type: multipart/form-data" ^
-            -F "sonar_report=@target/sonar/report-task.txt" ^
-            -F "zap_report=@C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0\\Output.html"
-        '''
+        bat """
+          curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
+          -H "Content-Type: application/json" ^
+          -d "{\"name\":\"%JOB_NAME%\",\"build\":{\"full_url\":\"%BUILD_URL%\",\"log\":\"Build succeeded\"}}"
+        """
+      }
+    }
+    failure {
+      script {
+        bat """
+          curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
+          -H "Content-Type: application/json" ^
+          -d "{\"name\":\"%JOB_NAME%\",\"build\":{\"full_url\":\"%BUILD_URL%\",\"log\":\"Build failed\"}}"
+        """
       }
     }
   }
