@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maven-antrun-" default="main">
+  <target name="main">
+    <mkdir dir="logs" />
+    <copy file="C:\Users\madhu\DevSecOps\devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo/src/main/resources/messages_en.properties" tofile="C:\Users\madhu\DevSecOps\devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo\target\classes/messages.properties" />
+    <copy file="C:\Users\madhu\DevSecOps\devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo/src/main/resources/indexpage_en.properties" tofile="C:\Users\madhu\DevSecOps\devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo\target\classes/indexpage.properties" />
+    <delete file="C:\Users\madhu\DevSecOps\devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo\target\classes/org/t246osslab/easybuggy/core/utils/DeleteClassWhileMavenBuild.class" />
+  </target>
+</project>
