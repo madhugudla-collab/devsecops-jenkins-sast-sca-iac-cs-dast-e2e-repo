@@ -21,7 +21,7 @@ import org.t246osslab.easybuggy.core.servlets.AbstractServlet;
 public class FileDescriptorLeakServlet extends AbstractServlet {
 
     private static final int MAX_DISPLAY_COUNT = 15;
-    private long count = 0;
+    private final long count = 0; // SECURITY FIX: Made field final to prevent mutation
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -38,7 +38,7 @@ public class FileDescriptorLeakServlet extends AbstractServlet {
             osw.write("<td>" + req.getRequestedSessionId() + "</td>");
             osw.write("</tr>" + System.getProperty("line.separator"));
             osw.flush();
-            count++;
+            // count++; // SECURITY FIX: Removed mutable count field usage
 
             BufferedReader br = new BufferedReader(new FileReader(file));
             bodyHtml.append("<p>" + getMsg("description.access.history", req.getLocale()) + "</p>");
@@ -51,7 +51,7 @@ public class FileDescriptorLeakServlet extends AbstractServlet {
             String line;
             long currentLineNum = 0;
             while ((line = br.readLine()) != null) {
-                if (count - currentLineNum <= MAX_DISPLAY_COUNT) {
+                if (currentLineNum < MAX_DISPLAY_COUNT) { // SECURITY FIX: Changed condition to avoid using count
                     bodyHtml.insert(headerLength, line);
                 }
                 currentLineNum++;
