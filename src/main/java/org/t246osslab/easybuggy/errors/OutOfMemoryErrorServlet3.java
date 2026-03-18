@@ -18,12 +18,13 @@ public class OutOfMemoryErrorServlet3 extends AbstractServlet {
 
         while (true) {
             new Thread() {
-            @Override
+                @Override
                 public void run() {
                     try {
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         log.error("Exception occurs: ", e);
+                        Thread.currentThread().interrupt(); // SECURITY FIX: re-interrupt the thread
                     }
                 }
             }.start();
