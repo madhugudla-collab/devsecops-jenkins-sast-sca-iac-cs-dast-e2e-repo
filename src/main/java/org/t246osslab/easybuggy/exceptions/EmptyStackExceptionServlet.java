@@ -19,7 +19,7 @@ public class EmptyStackExceptionServlet extends AbstractServlet {
         Stack<String> stack = new Stack<String>();
         String tmp;
         while (null != (tmp = stack.pop())) {
-            log.debug("Stack.pop(): " + tmp);
+            log.debug(String.format("Stack.pop(): %s", tmp)); // SECURITY FIX: Use built-in formatting to construct this argument
         }
     }
 }
