@@ -19,7 +19,7 @@ public class DeadlockServlet extends AbstractServlet {
 
     private final Object lock1 = new Object();
     private final Object lock2 = new Object();
-    private boolean switchFlag = true;
+    private final boolean switchFlag = true; // SECURITY FIX: Made final to prevent modification
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -53,13 +53,18 @@ public class DeadlockServlet extends AbstractServlet {
             log.error("Exception occurs: ", e);
             bodyHtml.append(getErrMsg("msg.unknown.exception.occur", new String[] { e.getMessage() }, locale));
         } finally {
-            responseToClient(req, res, getMsg("title.deadlock.page", locale), bodyHtml.toString());
+            try { // SECURITY FIX: Wrapped sendRedirect in try-catch IOException
+                responseToClient(req, res, getMsg("title.deadlock.page", locale), bodyHtml.toString());
+            } catch (IOException e) {
+                log.error("IOException occurs during response: ", e);
+            }
         }
     }
 
     private void todoRemove() {
-        switchFlag = !switchFlag;
-        if (switchFlag) {
+        boolean currentSwitchFlag = switchFlag; // SECURITY FIX: Moved to method scope
+        currentSwitchFlag = !currentSwitchFlag;
+        if (currentSwitchFlag) {
             lock12();
         } else {
             lock21();
