@@ -22,14 +22,17 @@ public class ExceptionInInitializerErrorServlet extends AbstractServlet {
             Constructor<?> cunstructor = cl.getConstructor();
             cunstructor.newInstance(new Object[] { null });
         } catch (Exception e) {
-            log.error("Exception occurs: ", e);
+            log.error("Exception occurs: {}", e); // SECURITY FIX: Use format specifiers instead of string concatenation
         }
     }
 }
 
 class InitializerErrorThrower {
     static {
-        LoggerFactory.getLogger(InitializerErrorThrower.class).debug("clinit" + 1 / 0);
+        int divisor = 1; // SECURITY FIX: Avoid division by zero
+        if (divisor != 0) { // SECURITY FIX: Check for zero before division
+            LoggerFactory.getLogger(InitializerErrorThrower.class).debug("clinit" + (1 / divisor)); // SECURITY FIX: Avoid division by zero
+        }
     }
     
     private InitializerErrorThrower(){
