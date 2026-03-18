@@ -65,27 +65,36 @@ pipeline {
   post {
     always {
       script {
-        // Call Security Orchestrator Bot — runs after EVERY build (pass or fail)
-        // Bot reads the full Jenkins console log and:
+        // Call Security Orchestrator Bot using Groovy httpRequest
+        // Uses JsonOutput.toJson() to safely handle Windows paths (backslashes etc.)
+        // Bot reads Jenkins console log and creates GitHub Issues/PRs per scan type:
         //   SAST (SonarQube)  -> GitHub PR with AI code fix
         //   SCA (Snyk)        -> GitHub Issue alert
         //   Container (Trivy) -> GitHub Issue alert
         //   DAST (ZAP)        -> Saves JSON report
         //   IaC (Checkov)     -> GitHub Issue with remediation steps
         try {
-          bat """
-            curl -s -X POST "http://127.0.0.1:8000/webhook/jenkins/pipeline" ^
-            -H "Content-Type: application/json" ^
-            -d "{\\"build_url\\": \\"%BUILD_URL%\\", ^
-                 \\"job_name\\": \\"%JOB_NAME%\\", ^
-                 \\"repo_owner\\": \\"madhugudla-collab\\", ^
-                 \\"repo_name\\": \\"devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo\\", ^
-                 \\"branch\\": \\"main\\", ^
-                 \\"jenkins_user\\": \\"admin\\", ^
-                 \\"jenkins_workspace\\": \\"%WORKSPACE%\\", ^
-                 \\"sonarqube_url\\": \\"http://localhost:9000\\", ^
-                 \\"sonarqube_project_key\\": \\"easybuggy\\"}"
-          """
+          def payload = groovy.json.JsonOutput.toJson([
+            build_url             : env.BUILD_URL,
+            job_name              : env.JOB_NAME,
+            repo_owner            : "madhugudla-collab",
+            repo_name             : "devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo",
+            branch                : "main",
+            jenkins_user          : "admin",
+            jenkins_workspace     : env.WORKSPACE,
+            sonarqube_url         : "http://localhost:9000",
+            sonarqube_project_key : "easybuggy"
+          ])
+
+          def response = httpRequest(
+            url              : 'http://127.0.0.1:8000/webhook/jenkins/pipeline',
+            httpMode         : 'POST',
+            contentType      : 'APPLICATION_JSON',
+            requestBody      : payload,
+            validResponseCodes: '200:299',
+            timeout          : 30
+          )
+          echo "Security Bot Response: ${response.status} - ${response.content}"
         } catch (err) {
           echo "Security bot notification failed: ${err.getMessage()} — build result unchanged"
         }
