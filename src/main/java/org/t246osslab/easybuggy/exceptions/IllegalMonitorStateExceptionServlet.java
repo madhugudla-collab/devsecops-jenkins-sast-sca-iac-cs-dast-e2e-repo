@@ -17,10 +17,12 @@ public class IllegalMonitorStateExceptionServlet extends AbstractServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         Thread thread = new Thread();
         thread.start();
-        try {
-            thread.wait();
-        } catch (InterruptedException e) {
-            log.error("InterruptedException occurs: ", e);
+        synchronized (thread) { // SECURITY FIX: Move wait() into synchronized block to hold the monitor
+            try {
+                thread.wait(); // SECURITY FIX: Ensure wait() is called within synchronized block
+            } catch (InterruptedException e) {
+                log.error("InterruptedException occurs: ", e);
+            }
         }
     }
 }
