@@ -59,21 +59,18 @@ public class StringPlusOperationServlet extends AbstractServlet {
             bodyHtml.append("<br><br>");
 
             if (length > 0) {
-                // StringBuilder builder = new StringBuilder();
                 String s = "";
                 if (characters != null) {
-                    java.util.Random rand = new java.util.Random();
+                    java.security.SecureRandom rand = new java.security.SecureRandom(); // SECURITY FIX: Use SecureRandom for better randomness
                     log.info("Start Date: {}", new Date());
                     for (int i = 0; i < length && i < MAX_LENGTH; i++) {
                         s = s + characters[rand.nextInt(characters.length)];
-                        // builder.append(characters[rand.nextInt(characters.length)]);
                     }
                     log.info("End Date: {}", new Date());
                 }
                 bodyHtml.append(getMsg("label.execution.result", locale));
                 bodyHtml.append("<br><br>");
-                // bodyHtml.append(encodeForHTML(builder.toString()));
-                bodyHtml.append(encodeForHTML(s));
+                bodyHtml.append(encodeForHTML(s)); // SECURITY FIX: Encode output for XSS
             } else {
                 bodyHtml.append(getMsg("msg.enter.positive.number", locale));
             }
