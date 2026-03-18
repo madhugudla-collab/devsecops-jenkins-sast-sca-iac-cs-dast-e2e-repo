@@ -42,28 +42,27 @@ public class MailHeaderInjectionServlet extends AbstractServlet {
         bodyHtml.append("<form action=\"mailheaderijct\" method=\"post\" enctype=\"multipart/form-data\">");
         bodyHtml.append("<table class=\"table table-bordered\" style=\"font-size:small;\">");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td>" + getMsg("label.your.name", locale) + ":&nbsp;<br><br></td>");
+        bodyHtml.append(String.format("<td>%s:&nbsp;<br><br></td>", getMsg("label.your.name", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("<td><input type=\"text\" name=\"name\" size=\"50\"/><br><br></td>");
         bodyHtml.append("</tr>");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td>" + getMsg("label.your.mail", locale) + ":&nbsp;<br><br></td>");
+        bodyHtml.append(String.format("<td>%s:&nbsp;<br><br></td>", getMsg("label.your.mail", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("<td><input type=\"text\" name=\"mail\" size=\"50\"/><br><br></td>");
         bodyHtml.append("</tr>");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td>" + getMsg("label.subject", locale) + ":&nbsp;<br><br></td>");
+        bodyHtml.append(String.format("<td>%s:&nbsp;<br><br></td>", getMsg("label.subject", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("<td><input type=\"text\" name=\"subject\" size=\"50\"/><br><br></td>");
         bodyHtml.append("</tr>");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td>" + getMsg("label.content", locale) + ":&nbsp;<br><br></td>");
+        bodyHtml.append(String.format("<td>%s:&nbsp;<br><br></td>", getMsg("label.content", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("<td><textarea rows=\"10\" cols=\"39\" name=\"content\"></textarea> <br><br></td>");
         bodyHtml.append("</tr>");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td>" + getMsg("label.attach.file", locale) + ":&nbsp;<br><br></td>");
+        bodyHtml.append(String.format("<td>%s:&nbsp;<br><br></td>", getMsg("label.attach.file", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("<td><input type=\"file\" name=\"file\" size=\"50\" /><br></td>");
         bodyHtml.append("</tr>");
         bodyHtml.append("<tr>");
-        bodyHtml.append("<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\""
-                + getMsg("label.submit", locale) + "\"/></td>");
+        bodyHtml.append(String.format("<td colspan=\"2\" align=\"center\"><input type=\"submit\" value=\"%s\"/></td>", getMsg("label.submit", locale))); // SECURITY FIX: Use format specifier instead of concatenation
         bodyHtml.append("</tr>");
         bodyHtml.append("</table>");
         bodyHtml.append("<br>");
@@ -72,7 +71,6 @@ public class MailHeaderInjectionServlet extends AbstractServlet {
             req.setAttribute("message", null);
         }
         bodyHtml.append(getInfoMsg("msg.note.mailheaderinjection", locale));
-        bodyHtml.append("</form>");
         responseToClient(req, res, getMsg("title.mailheaderinjection.page", locale), bodyHtml.toString());
     }
 
