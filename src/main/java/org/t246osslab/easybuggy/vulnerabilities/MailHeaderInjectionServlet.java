@@ -72,7 +72,6 @@ public class MailHeaderInjectionServlet extends AbstractServlet {
             req.setAttribute("message", null);
         }
         bodyHtml.append(getInfoMsg("msg.note.mailheaderinjection", locale));
-        bodyHtml.append("</form>");
         responseToClient(req, res, getMsg("title.mailheaderinjection.page", locale), bodyHtml.toString());
     }
 
