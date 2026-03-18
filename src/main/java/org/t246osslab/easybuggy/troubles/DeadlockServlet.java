@@ -89,6 +89,7 @@ public class DeadlockServlet extends AbstractServlet {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             log.error("Exception occurs: ", e);
+            Thread.currentThread().interrupt(); // SECURITY FIX: re-interrupt the thread
         }
     }
 }

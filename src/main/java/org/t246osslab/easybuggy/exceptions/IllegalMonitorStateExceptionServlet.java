@@ -20,7 +20,8 @@ public class IllegalMonitorStateExceptionServlet extends AbstractServlet {
         try {
             thread.wait();
         } catch (InterruptedException e) {
-            log.error("InterruptedException occurs: ", e);
+            log.error("InterruptedException occurs: ", e); // SECURITY FIX: Log the exception
+            Thread.currentThread().interrupt(); // SECURITY FIX: Re-interrupt the thread
         }
     }
 }
