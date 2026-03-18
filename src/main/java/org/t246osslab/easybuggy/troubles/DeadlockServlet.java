@@ -53,7 +53,11 @@ public class DeadlockServlet extends AbstractServlet {
             log.error("Exception occurs: ", e);
             bodyHtml.append(getErrMsg("msg.unknown.exception.occur", new String[] { e.getMessage() }, locale));
         } finally {
-            responseToClient(req, res, getMsg("title.deadlock.page", locale), bodyHtml.toString());
+            try { // SECURITY FIX: Wrap sendRedirect in try-catch IOException
+                responseToClient(req, res, getMsg("title.deadlock.page", locale), bodyHtml.toString());
+            } catch (IOException e) {
+                log.error("IOException occurs during response: ", e); // SECURITY FIX: Log IOException
+            }
         }
     }
 
@@ -89,6 +93,7 @@ public class DeadlockServlet extends AbstractServlet {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             log.error("Exception occurs: ", e);
+            Thread.currentThread().interrupt(); // SECURITY FIX: Re-interrupt the thread
         }
     }
 }
