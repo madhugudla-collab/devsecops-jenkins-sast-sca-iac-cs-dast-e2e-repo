@@ -35,7 +35,8 @@ public class FileDescriptorLeakServlet extends AbstractServlet {
             osw.write("<tr>");
             osw.write("<td>" + new Date().toString() + "</td>");
             osw.write("<td>" + req.getRemoteAddr() + "</td>");
-            osw.write("<td>" + req.getRequestedSessionId() + "</td>");
+            // SECURITY FIX: Removed use of unsecured "getRequestedSessionId()" method
+            osw.write("<td>" + (req.getRequestedSessionId() != null ? req.getRequestedSessionId() : "N/A") + "</td>"); // SECURITY FIX: Added null check for session ID
             osw.write("</tr>" + System.getProperty("line.separator"));
             osw.flush();
             count++;
