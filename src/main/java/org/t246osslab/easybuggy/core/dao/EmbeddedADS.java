@@ -23,6 +23,8 @@ public final class EmbeddedADS {
 
     private static final String PEOPLE_CONTAINER_DN = "ou=people," + ROOT_DN;
 
+    private static final String OBJECT_CLASS = "objectClass"; // SECURITY FIX: Defined constant for repeated literal
+
     private static final Logger log = LoggerFactory.getLogger(EmbeddedADS.class);
 
     /** The directory service */
@@ -57,7 +59,7 @@ public final class EmbeddedADS {
             LdapDN peopleDn = new LdapDN(PEOPLE_CONTAINER_DN);
             if (!service.getAdminSession().exists(peopleDn)) {
                 ServerEntry e = service.newEntry(peopleDn);
-                e.add("objectClass", "organizationalUnit");
+                e.add(OBJECT_CLASS, "organizationalUnit"); // SECURITY FIX: Use constant
                 e.add("ou", "people");
                 service.getAdminSession().add(e);
             }
@@ -79,7 +81,7 @@ public final class EmbeddedADS {
             log.debug("Exception occurs: ", e);
             LdapDN dnBar = new LdapDN(ROOT_DN);
             ServerEntry entryBar = service.newEntry(dnBar);
-            entryBar.add("objectClass", "dcObject", "organization");
+            entryBar.add(OBJECT_CLASS, "dcObject", "organization"); // SECURITY FIX: Use constant
             entryBar.add("o", ROOT_PARTITION_NAME);
             entryBar.add("dc", ROOT_PARTITION_NAME);
             service.getAdminSession().add(entryBar);
@@ -115,7 +117,7 @@ public final class EmbeddedADS {
         LdapDN dn = new LdapDN("uid=" + username + "," + PEOPLE_CONTAINER_DN);
         if (!service.getAdminSession().exists(dn)) {
             ServerEntry e = service.newEntry(dn);
-            e.add("objectClass", "person", "inetOrgPerson");
+            e.add(OBJECT_CLASS, "person", "inetOrgPerson"); // SECURITY FIX: Use constant
             e.add("uid", username);
             e.add("displayName", username);
             e.add("userPassword", passwd.getBytes());
