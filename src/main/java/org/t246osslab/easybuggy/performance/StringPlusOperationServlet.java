@@ -1,6 +1,7 @@
 package org.t246osslab.easybuggy.performance;
 
 import java.io.IOException;
+import java.security.SecureRandom; // SECURITY FIX: Use SecureRandom for better randomness
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
@@ -25,6 +26,8 @@ public class StringPlusOperationServlet extends AbstractServlet {
             "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
     private static final String[] ALL_SIGNS = { "!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", ":",
             ";", "<", "=", ">", "?", "@", "[", "]", "^", "_", "{", "|", "}" };
+
+    private final SecureRandom rand = new SecureRandom(); // SECURITY FIX: Save and re-use SecureRandom
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -59,20 +62,16 @@ public class StringPlusOperationServlet extends AbstractServlet {
             bodyHtml.append("<br><br>");
 
             if (length > 0) {
-                // StringBuilder builder = new StringBuilder();
                 String s = "";
                 if (characters != null) {
-                    java.util.Random rand = new java.util.Random();
                     log.info("Start Date: {}", new Date());
                     for (int i = 0; i < length && i < MAX_LENGTH; i++) {
-                        s = s + characters[rand.nextInt(characters.length)];
-                        // builder.append(characters[rand.nextInt(characters.length)]);
+                        s = s + characters[rand.nextInt(characters.length)]; // SECURITY FIX: Use SecureRandom
                     }
                     log.info("End Date: {}", new Date());
                 }
                 bodyHtml.append(getMsg("label.execution.result", locale));
                 bodyHtml.append("<br><br>");
-                // bodyHtml.append(encodeForHTML(builder.toString()));
                 bodyHtml.append(encodeForHTML(s));
             } else {
                 bodyHtml.append(getMsg("msg.enter.positive.number", locale));
@@ -80,7 +79,11 @@ public class StringPlusOperationServlet extends AbstractServlet {
             bodyHtml.append("<br><br>");
             bodyHtml.append(getInfoMsg("msg.note.strplusopr", locale));
             bodyHtml.append("</form>");
-            responseToClient(req, res, getMsg("title.strplusopr.page", locale), bodyHtml.toString());
+            try { // SECURITY FIX: Wrap response in try-catch for IOException
+                responseToClient(req, res, getMsg("title.strplusopr.page", locale), bodyHtml.toString());
+            } catch (IOException e) {
+                log.error("IOException during response: ", e);
+            }
 
         } catch (Exception e) {
             log.error("Exception occurs: ", e);
