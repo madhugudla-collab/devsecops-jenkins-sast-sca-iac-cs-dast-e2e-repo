@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 @SuppressWarnings("serial")
 public abstract class AbstractServlet extends HttpServlet {
 
-    protected Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass()); // SECURITY FIX: Made logger final
 
     /**
      * Send an HTTP response to the client.
