@@ -95,7 +95,7 @@ pipeline {
         bat '''
           curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
           -H "Content-Type: application/json" ^
-          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build succeeded\\\"}}"
+          -d "{\\\"job_name\\\":\\\"%JOB_NAME%\\\",\\\"build_url\\\":\\\"%BUILD_URL%\\\",\\\"reports\\\":[],\\\"log\\\":\\\"Build succeeded\\\"}"
         '''
       }
     }
@@ -104,7 +104,7 @@ pipeline {
         bat '''
           curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
           -H "Content-Type: application/json" ^
-          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build failed\\\"}}"
+          -d "{\\\"job_name\\\":\\\"%JOB_NAME%\\\",\\\"build_url\\\":\\\"%BUILD_URL%\\\",\\\"reports\\\":[],\\\"log\\\":\\\"Build failed\\\"}"
         '''
       }
     }
