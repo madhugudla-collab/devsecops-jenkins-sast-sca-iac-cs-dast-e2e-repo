@@ -15,6 +15,11 @@ public class ArithmeticExceptionServlet extends AbstractServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        res.addIntHeader("ae", 1 / 0);
+        int divisor = 0; // SECURITY FIX: Initialize divisor to zero for demonstration
+        if (divisor == 0) { // SECURITY FIX: Check for zero before division
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Division by zero is not allowed."); // SECURITY FIX: Handle division by zero
+            return;
+        }
+        res.addIntHeader("ae", 1 / divisor); // SECURITY FIX: Safe division after check
     }
 }
