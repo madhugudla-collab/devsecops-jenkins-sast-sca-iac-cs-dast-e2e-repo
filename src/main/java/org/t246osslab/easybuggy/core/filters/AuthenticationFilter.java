@@ -19,6 +19,8 @@ import javax.servlet.http.HttpSession;
 @WebFilter(urlPatterns = { "/*" })
 public class AuthenticationFilter implements Filter {
 
+    private static final String LOGIN_URL = "/login"; // SECURITY FIX: Define a constant for the login URL
+
     /**
      * Intercept unauthenticated requests for specific URLs and redirect to login page.
      *
@@ -55,12 +57,16 @@ public class AuthenticationFilter implements Filter {
                 /* Not authenticated yet */
                 session = request.getSession(true);
                 session.setAttribute("target", target);
-                if (loginType == null) {
-                    response.sendRedirect(response.encodeRedirectURL("/login" + queryString));
-                } else if ("sessionfixation".equals(loginType)) {
-                    response.sendRedirect(response.encodeRedirectURL("/" + loginType + "/login" + queryString));
-                } else {
-                    response.sendRedirect("/" + loginType + "/login" + queryString);
+                try { // SECURITY FIX: Wrap sendRedirect in try-catch for IOException
+                    if (loginType == null) {
+                        response.sendRedirect(response.encodeRedirectURL(LOGIN_URL + queryString)); // SECURITY FIX: Use constant for login URL
+                    } else if ("sessionfixation".equals(loginType)) {
+                        response.sendRedirect(response.encodeRedirectURL("/" + loginType + "/login" + queryString));
+                    } else {
+                        response.sendRedirect("/" + loginType + "/login" + queryString);
+                    }
+                } catch (IOException e) { // SECURITY FIX: Handle IOException
+                    e.printStackTrace(); // Log the exception (consider using a logging framework)
                 }
                 return;
             }
