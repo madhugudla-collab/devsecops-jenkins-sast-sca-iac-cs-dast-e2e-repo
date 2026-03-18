@@ -47,12 +47,12 @@ pipeline {
       }
     }
     stage('RunDASTUsingZAP') {
-	steps {
+      steps {
         dir("C:\\Users\\madhu\\DevSecOps\\ZAPCrossplatform\\ZAP_2.16.0") {
-            bat "zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout %WORKSPACE%\\Output.html"
+          bat "zap.bat -port 9393 -cmd -quickurl https://www.example.com -quickprogress -quickout %WORKSPACE%\\Output.html"
         }
+      }
     }
-}
 
     stage('checkov') {
       steps {
@@ -63,22 +63,32 @@ pipeline {
   }
 
   post {
-    success {
+    always {
       script {
-        bat '''
-          curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
-          -H "Content-Type: application/json" ^
-          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build succeeded\\\"}}"
-        '''
-      }
-    }
-    failure {
-      script {
-        bat '''
-          curl -X POST "http://127.0.0.1:8000/webhook/jenkins" ^
-          -H "Content-Type: application/json" ^
-          -d "{\\\"name\\\":\\\"%JOB_NAME%\\\",\\\"build\\\":{\\\"full_url\\\":\\\"%BUILD_URL%\\\",\\\"log\\\":\\\"Build failed\\\"}}"
-        '''
+        // Call Security Orchestrator Bot — runs after EVERY build (pass or fail)
+        // Bot reads the full Jenkins console log and:
+        //   SAST (SonarQube)  -> GitHub PR with AI code fix
+        //   SCA (Snyk)        -> GitHub Issue alert
+        //   Container (Trivy) -> GitHub Issue alert
+        //   DAST (ZAP)        -> Saves JSON report
+        //   IaC (Checkov)     -> GitHub Issue with remediation steps
+        try {
+          bat """
+            curl -s -X POST "http://127.0.0.1:8000/webhook/jenkins/pipeline" ^
+            -H "Content-Type: application/json" ^
+            -d "{\\"build_url\\": \\"%BUILD_URL%\\", ^
+                 \\"job_name\\": \\"%JOB_NAME%\\", ^
+                 \\"repo_owner\\": \\"madhugudla-collab\\", ^
+                 \\"repo_name\\": \\"devsecops-jenkins-sast-sca-iac-cs-dast-e2e-repo\\", ^
+                 \\"branch\\": \\"main\\", ^
+                 \\"jenkins_user\\": \\"admin\\", ^
+                 \\"jenkins_workspace\\": \\"%WORKSPACE%\\", ^
+                 \\"sonarqube_url\\": \\"http://localhost:9000\\", ^
+                 \\"sonarqube_project_key\\": \\"easybuggy\\"}"
+          """
+        } catch (err) {
+          echo "Security bot notification failed: ${err.getMessage()} — build result unchanged"
+        }
       }
     }
   }
