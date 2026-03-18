@@ -2,6 +2,7 @@ package org.t246osslab.easybuggy.core.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -18,6 +19,8 @@ import org.t246osslab.easybuggy.core.utils.Closer;
 public final class DBClient {
 
     private static final Logger log = LoggerFactory.getLogger(DBClient.class);
+    private static final String FALSE_VALUE = "'false', '', ''"; // SECURITY FIX: Define constant for repeated literal
+    private static final String TRUE_VALUE = "'true', '', ''"; // SECURITY FIX: Define constant for repeated literal
 
     static {
         Statement stmt = null;
@@ -72,21 +75,32 @@ public final class DBClient {
                 "secret varchar(100), ispublic varchar(5), phone varchar(20), mail varchar(100))");
 
         // insert private (invisible) user records
-        stmt.executeUpdate("insert into users values ('admin','admin','password','" + RandomStringUtils.randomNumeric(10) + "','false', '', '')");
-        stmt.executeUpdate("insert into users values ('admin02','admin02','pas2w0rd','" + RandomStringUtils.randomNumeric(10) + "','false', '', '')");
-        stmt.executeUpdate("insert into users values ('admin03','admin03','pa33word','" + RandomStringUtils.randomNumeric(10) + "','false', '', '')");
-        stmt.executeUpdate("insert into users values ('admin04','admin04','pathwood','" + RandomStringUtils.randomNumeric(10) + "','false', '', '')");
+        insertUser(stmt, "admin", "admin", "password", RandomStringUtils.randomNumeric(10), FALSE_VALUE);
+        insertUser(stmt, "admin02", "admin02", "pas2w0rd", RandomStringUtils.randomNumeric(10), FALSE_VALUE);
+        insertUser(stmt, "admin03", "admin03", "pa33word", RandomStringUtils.randomNumeric(10), FALSE_VALUE);
+        insertUser(stmt, "admin04", "admin04", "pathwood", RandomStringUtils.randomNumeric(10), FALSE_VALUE);
         
         // insert public (test) user records
-        stmt.executeUpdate("insert into users values ('user00','Mark','password','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user01','David','pa32w0rd','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user02','Peter','pa23word','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user03','James','patwired','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user04','Benjamin','password','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user05','Eric','pas2w0rd','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user06','Sharon','pa3world','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user07','Pamela','pathwood','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user08','Jacqueline','password','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
-        stmt.executeUpdate("insert into users values ('user09','Michelle','pas2w0rd','" + RandomStringUtils.randomNumeric(10) + "','true', '', '')");
+        insertUser(stmt, "user00", "Mark", "password", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user01", "David", "pa32w0rd", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user02", "Peter", "pa23word", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user03", "James", "patwired", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user04", "Benjamin", "password", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user05", "Eric", "pas2w0rd", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user06", "Sharon", "pa3world", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user07", "Pamela", "pathwood", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user08", "Jacqueline", "password", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+        insertUser(stmt, "user09", "Michelle", "pas2w0rd", RandomStringUtils.randomNumeric(10), TRUE_VALUE);
+    }
+
+    private static void insertUser(Statement stmt, String id, String name, String password, String secret, String isPublic) throws SQLException { // SECURITY FIX: Use method for repeated insert logic
+        String query = "insert into users values (?, ?, ?, ?, " + isPublic + ")"; // SECURITY FIX: Use PreparedStatement to prevent SQL injection
+        try (PreparedStatement pstmt = stmt.getConnection().prepareStatement(query)) { // SECURITY FIX: Use PreparedStatement
+            pstmt.setString(1, id);
+            pstmt.setString(2, name);
+            pstmt.setString(3, password);
+            pstmt.setString(4, secret);
+            pstmt.executeUpdate();
+        }
     }
 }
