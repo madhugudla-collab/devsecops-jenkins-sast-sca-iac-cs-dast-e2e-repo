@@ -75,17 +75,5 @@ public class CreatingUnnecessaryObjectsServlet extends AbstractServlet {
         }
         return sum;
     }
-/*
-    private long calcSum2(int number) {
-        long sum = 0L;
-        for (int i = 1; i <= number; i++) {
-            sum += i;
-        }
-        return sum;
-    }
-
-    private long calcSum3(int number) {
-        return (long) number * (number + 1) / 2;
-    }
-*/
+// SECURITY FIX: Removed commented-out code block to clean up the code and adhere to best practices.
 }

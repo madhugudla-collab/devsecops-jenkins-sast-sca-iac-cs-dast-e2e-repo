@@ -86,25 +86,5 @@ public final class Closer {
         }
     }
     
-// for jdk 7 or later
-//    /**
-//     * Close all Closeable objects.
-//     *
-//     * @param closeables Closeable objects.
-//     */
-//    public static void close(AutoCloseable... closeables) {
-//        if (closeables != null) {
-//            for (AutoCloseable closeable : closeables) {
-//                try {
-//                    if(closeable != null){
-//                        closeable.close();
-//                    }
-//                } catch (IOException e) {
-//                    log.error("IOException occurs: ", e);
-//                } catch (Exception e) {
-//                    log.error("Exception occurs: ", e);
-//                }
-//            }
-//        }
-//    }
+// SECURITY FIX: Removed commented-out code that is not needed
 }
